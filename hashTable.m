@@ -1,0 +1,19 @@
+function [theta,lamda,u]=hashTable(patch,Qangle,Qstrenth,Qcoherence)
+[q1,q2]=gradient(patch);
+q1=q1(:);
+q2=q2(:);
+G=[q1,q2];
+G(:,1)=zscore(G(:,1));
+G(:,2)=zscore(G(:,2));
+x=G'*G;
+[V,D]=eig(x);
+theta=atan2(V(1,1),V(2,1));
+if(theta<0) theta=theta+pi; end
+D=[D(1,1),D(2,2)];
+lamda=max(D)/(sum(D)+0.0001);
+sroot=sqrt(D);
+u=abs((sroot(1)-sroot(2))/(sroot(1)+sroot(2)+0.0001));
+theta=floor(theta/(pi/Qangle))+1;
+lamda=floor(lamda/(0.5/Qstrenth))+1;
+u=floor(u/(1/Qcoherence))+1;
+end
