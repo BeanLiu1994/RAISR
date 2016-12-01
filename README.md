@@ -8,6 +8,6 @@ It's just a test now and could only deal with grey-scale image.
 
 I used it to deal with the CT image, the beat part is that it trainning and running really fast( the whole filter may not be necessary for special questions).
 
-I can't put the test image here for company's secrecy reason. 
+I can't put the test image here for secrety reason, and i'll put on a normal edition letter. 
 
 I will complete the CT-Blending part in the future.
