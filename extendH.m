@@ -1,6 +1,10 @@
-function imH=extendH(im,patchSize,R)
-im=imresize(im,R,'bicubic');
-[H,W]=size(im);
-imH=zeros(H+patchSize-1,W+patchSize-1);
-imH((floor(patchSize/2)+1):(H+floor(patchSize/2)),(floor(patchSize/2)+1):(W+floor(patchSize/2)))=im;
+function [imH,extend]=extendH(im,patchSize,AddGap)
+[H,W,Dim]=size(im);
+if exist('AddGap','var') && AddGap
+    extend=floor(patchSize/2);
+else
+    extend=0;
+end
+imH=zeros(H+extend*2,W+extend*2,Dim);
+imH((extend+1):(H+extend),(extend+1):(W+extend),:)=im;
 end
