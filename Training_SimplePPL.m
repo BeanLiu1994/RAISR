@@ -38,7 +38,7 @@ for k=1:length(filelist)
     imH=extendH(im,patchSize);
     
     GridRows=floor(H/patchSize);
-    GridCols=floor(H/patchSize);
+    GridCols=floor(W/patchSize);
     Ab_RowCount=0;
     A=zeros(GridRows*GridCols*Dim,patchSize*patchSize);
     b=zeros(GridRows*GridCols*Dim,1);
