@@ -35,30 +35,27 @@ for k=1:length(filelist)
     im = imread(fullfile(trainPath,filelist(k).name));
     im = im2double(im);
     [H,W,Dim]=size(im);    
-    imLL=GetL(im,patchSize,R);
-    [HL,WL,~]=size(imLL);    
+    imLL=extendL(im,patchSize,R);
     imH=extendH(im,patchSize);
     
-    GridRows=floor(HL/patchSize);
-    GridCols=floor(WL/patchSize);
+    GridRows=floor(H/patchSize);
+    GridCols=floor(W/patchSize);
     Ab_RowCount=zeros(R*R,1);
     A=zeros(GridRows*GridCols*Dim,patchSize*patchSize,R*R);
     b=zeros(GridRows*GridCols*Dim,1,R*R);
-    for row=1:GridRows
-        for col=1:GridCols
+    for row=R:GridRows-1
+        for col=R:GridCols-1
+            Center=[-(patchSize-1)/2+row*patchSize,-(patchSize-1)/2+col*patchSize];
+            pType=GetType(Center,R);
+            PosOnHRImg=Center;
             for dim=1:Dim
                 patchL=imLL(...
-                    (row-1)*patchSize+1:row*patchSize , ...
-                    (col-1)*patchSize+1:col*patchSize , ...
+                    PosOnHRImg(1)-(patchSize-1)/2*R:R:PosOnHRImg(1)+(patchSize-1)/2*R , ...
+                    PosOnHRImg(2)-(patchSize-1)/2*R:R:PosOnHRImg(2)+(patchSize-1)/2*R , ...
                     dim);
-                for pType=1:R*R
-                    Center=[-(patchSize-1)/2+row*patchSize,-(patchSize-1)/2+col*patchSize];
-%                     PosOnHRImg=Center;
-                    PosOnHRImg=[(Center(1)-1)*R+ceil(pType/R),(Center(2)-1)*R+mod(pType-1,R)+1];
-                    Ab_RowCount(pType)=Ab_RowCount(pType)+1;
-                    A(Ab_RowCount(pType),:,pType)=patchL(:)';
-                    b(Ab_RowCount(pType),:,pType)=im(PosOnHRImg(1),PosOnHRImg(2),dim);
-                end
+                Ab_RowCount(pType)=Ab_RowCount(pType)+1;
+                A(Ab_RowCount(pType),:,pType)=patchL(:)';
+                b(Ab_RowCount(pType),:,pType)=im(PosOnHRImg(1),PosOnHRImg(2),dim);
             end
         end
     end
@@ -91,23 +88,22 @@ for k=1:length(filelist)
     im = imread(fullfile(trainPath,filelist(k).name));
     im = im2double(im);
     [H,W,Dim]=size(im);
-    [imLL,extend]=GetL(im,patchSize,R,1);
+    [imLL,extend]=extendL(im,patchSize*R,R,1);
     [HL,WL,~]=size(imLL);    
-    imH=extendH(im,patchSize,1);
+    imH=extendH(im,patchSize*R,1);
     imH_Recover=zeros(size(imH));
     tic
     for row=extend+1:HL-extend
         for col=extend+1:WL-extend
-            PixelType=mod(row-extend-1,R)*R+mod(col-extend-1,R)+1;
+            Center=[row,col];
+            pType=GetType(Center-[extend,extend],R);
+            PosOnHRImg=Center;
             for dim=1:Dim
                 patchL=imLL(...
-                    row-extend:row+extend, ...
-                    col-extend:col+extend, ...
+                    PosOnHRImg(1)-(patchSize-1)/2*R:R:PosOnHRImg(1)+(patchSize-1)/2*R , ...
+                    PosOnHRImg(2)-(patchSize-1)/2*R:R:PosOnHRImg(2)+(patchSize-1)/2*R , ...
                     dim);
-                for pType=1:R*R
-                    pPos=[(row-1)*R+ceil(pType/R),(col-1)*R+mod(pType-1,R)+1];
-                    imH_Recover(pPos(1),pPos(2),dim)=patchL(:)'*h(:,:,pType);
-                end
+                imH_Recover(Center(1),Center(2),dim)=patchL(:)'*h(:,:,pType);
             end
         end
     end
